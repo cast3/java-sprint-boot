@@ -20,7 +20,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # Microservicio de productos
+  # Microservicio Spring Boot (puerto 8080)
   product-service:
     build: .
     container_name: product-service
@@ -33,6 +33,26 @@ services:
       DB_PASSWORD: postgres
     ports:
       - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: on-failure
+
+  # Microservicio Quarkus (puerto 8081)
+  quarkus-product-service:
+    build:
+      context: ./quarkus-product-service
+      dockerfile: Dockerfile.jvm
+    container_name: quarkus-product-service
+    environment:
+      QUARKUS_PROFILE: prod
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: productdb
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+    ports:
+      - "8081:8081"
     depends_on:
       postgres:
         condition: service_healthy

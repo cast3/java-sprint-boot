@@ -1,7 +1,24 @@
-# 🚀 Product Service — Microservicio con Spring Boot y Arquitectura Limpia
+# 🚀 Java Microservices — Spring Boot + Quarkus con Arquitectura Limpia
 
-> Proyecto de aprendizaje progresivo para practicar Java + Spring Boot con una estructura
-> profesional, orientado a desarrolladores junior que quieren escalar hacia el nivel senior.
+> Proyecto de aprendizaje progresivo para practicar Java con dos frameworks modernos:
+> **Spring Boot** y **Quarkus**, con una estructura profesional orientada a la
+> Arquitectura Limpia (Hexagonal / Ports & Adapters).
+> Ideal para desarrolladores junior que quieren escalar hacia el nivel senior.
+
+---
+
+## 📦 Módulos del repositorio
+
+| Módulo | Framework | Puerto | Descripción |
+|--------|-----------|--------|-------------|
+| `/` (raíz) | **Spring Boot 3.2** | `8080` | Microservicio de productos con Spring |
+| `quarkus-product-service/` | **Quarkus 3.8** | `8081` | Mismo servicio, con Quarkus |
+
+> **El dominio y la lógica de negocio son idénticos en ambos módulos.**
+> Solo cambia la infraestructura (REST, JPA, config).
+> Esto demuestra el poder de la Arquitectura Limpia.
+
+📖 **Guía Quarkus detallada:** [`quarkus-product-service/QUARKUS.md`](quarkus-product-service/QUARKUS.md)
 
 ---
 
@@ -316,30 +333,53 @@ Una vez que domines este microservicio, el siguiente nivel incluye:
 ## 🩺 Health Check
 
 ```bash
+# Spring Boot
 curl http://localhost:8080/actuator/health
+
+# Quarkus
+curl http://localhost:8081/q/health
 ```
 
-```json
-{
-  "status": "UP",
-  "components": {
-    "db": { "status": "UP" },
-    "diskSpace": { "status": "UP" }
-  }
-}
-```
+---
+
+## ⚡ Spring Boot vs Quarkus — Comparación rápida
+
+| Aspecto | Spring Boot (este módulo) | Quarkus (`quarkus-product-service/`) |
+|---|---|---|
+| Puerto | `8080` | `8081` |
+| Tiempo de inicio | ~2-4 s | ~0.5-1 s |
+| Anotación REST | `@RestController` + `@GetMapping` | `@Path` + `@GET` (JAX-RS) |
+| DI | `@Bean` / `@Service` | `@Produces` / `@ApplicationScoped` (CDI) |
+| Repositorio | `JpaRepository<E, ID>` | `PanacheRepository<E>` |
+| Config | `application.yml` | `application.properties` con prefijos `%dev.` |
+| OpenAPI | SpringDoc | SmallRye OpenAPI |
+| Modo desarrollo | `spring-boot:run` | `quarkus:dev` (live reload automático) |
+| Testing REST | `@WebMvcTest` + `MockMvc` | `@QuarkusTest` + REST Assured |
+| Modo nativo | Spring Native | GraalVM nativo integrado |
+
+> 📖 Ver comparación detallada con ejemplos de código:
+> [`quarkus-product-service/QUARKUS.md`](quarkus-product-service/QUARKUS.md)
 
 ---
 
 ## 📚 Recursos recomendados
 
+**Spring Boot:**
 - [Spring Boot Reference Documentation](https://docs.spring.io/spring-boot/docs/current/reference/html/)
+- [Baeldung — Spring Boot Tutorials](https://www.baeldung.com/spring-boot)
+
+**Quarkus:**
+- [Quarkus Getting Started](https://quarkus.io/get-started/)
+- [Quarkus Guides](https://quarkus.io/guides/)
+- [Panache — Simplificando JPA](https://quarkus.io/guides/hibernate-orm-panache)
+
+**Arquitectura:**
 - [Clean Architecture — Robert C. Martin](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
 - [Hexagonal Architecture](https://alistair.cockburn.us/hexagonal-architecture/)
-- [Baeldung — Spring Boot Tutorials](https://www.baeldung.com/spring-boot)
 
 ---
 
 > 💡 **Tip para juniors**: No intentes entender todo de golpe. Empieza leyendo el `ProductController`,
 > sigue hacia `ProductService` y termina en `ProductPersistenceAdapter`.
 > Así verás el flujo completo de una petición HTTP hasta la base de datos.
+> Luego repite el recorrido en `quarkus-product-service/` — verás que la lógica de negocio es idéntica.

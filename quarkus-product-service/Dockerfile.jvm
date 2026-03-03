@@ -1,0 +1,33 @@
+# ---- Etapa 1: Construcción ----
+FROM eclipse-temurin:17-jdk-alpine AS builder
+
+WORKDIR /app
+
+# Copiar POM y descargar dependencias primero (caché de Docker)
+COPY pom.xml .
+RUN apk add --no-cache maven && mvn dependency:go-offline -B -q
+
+# Copiar código fuente y construir (omitiendo tests)
+COPY src ./src
+RUN mvn package -DskipTests -B -q
+
+# ---- Etapa 2: Imagen JVM final (más ligera) ----
+FROM eclipse-temurin:17-jre-alpine
+
+WORKDIR /app
+
+# Usuario no root por seguridad
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+USER appuser
+
+# Quarkus genera un fast-jar en target/quarkus-app/
+COPY --from=builder /app/target/quarkus-app/lib/ lib/
+COPY --from=builder /app/target/quarkus-app/*.jar app.jar
+COPY --from=builder /app/target/quarkus-app/app/ app/
+COPY --from=builder /app/target/quarkus-app/quarkus/ quarkus/
+
+EXPOSE 8081
+
+ENV JAVA_OPTS="-Dquarkus.http.host=0.0.0.0"
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
